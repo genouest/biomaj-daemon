@@ -4,6 +4,7 @@ import yaml
 import logging
 from collections import deque
 import copy
+import base64
 
 from flask import Flask
 from flask import jsonify
@@ -1105,6 +1106,36 @@ def add_metrics():
             biomaj_metric.labels(proc['bank'], proc['action'], proc['updated']).inc()
             biomaj_time_metric.labels(proc['bank'], proc['action'], proc['updated']).set(proc['execution_time'])
     return jsonify({'msg': 'OK'})
+
+@app.route('/api/daemon/expose', methods=['GET'])
+def expose():
+    uri = request.headers['X-Forwarded-Uri']
+    if uri == '/db' or uri == '/db/':
+        return jsonify({'msg': 'access allowed'})
+    elts = uri.split('/')
+    requested_bank = elts[2]
+    user = None
+    options = Options({})
+    bank = Bank(requested_bank, options=Options({}), no_log=True)
+    if bank.bank['properties']['visibility'] == 'public':
+        return jsonify({'msg': 'access allowed'})
+
+    if not request.headers.get('Authorization', None):
+        abort(403)
+    encoded_uname_pass = request.headers.get('Authorization').split()[-1]
+    uname_pass = base64.b64decode(encoded_uname_pass)
+    apikey = uname_pass.split(':')[-1]
+    proxy = Utils.get_service_endpoint(config, 'user')
+    r = requests.get(proxy + '/api/user/info/apikey/' + apikey)
+    if not r.status_code == 200:
+        abort(404, {'message': 'Invalid API Key or connection issue'})
+    user = r.json()['user']
+    options = Options({'user': user['id']})
+    bank = Bank(requested_bank, options=options, no_log=True)
+    if not bank.is_owner():
+        abort(403)
+    return jsonify({'msg': 'access allowed'})
+    
 
 
 if __name__ == "__main__":
