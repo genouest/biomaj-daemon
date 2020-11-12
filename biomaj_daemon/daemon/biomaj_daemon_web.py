@@ -1107,8 +1107,19 @@ def add_metrics():
             biomaj_time_metric.labels(proc['bank'], proc['action'], proc['updated']).set(proc['execution_time'])
     return jsonify({'msg': 'OK'})
 
+
 @app.route('/api/daemon/expose', methods=['GET'])
 def expose():
+    do_expose = True
+    try:
+        do_expose_cfg = BiomajConfig.global_config.get('GENERAL', 'expose')
+        if do_expose_cfg == "false" or do_expose_cfg == "0":
+            do_expose = False
+
+    except Exception:
+        do_expose = True
+    if not do_expose:
+        abort(403)
     uri = request.headers['X-Forwarded-Uri']
     if uri == '/db' or uri == '/db/':
         return jsonify({'msg': 'access allowed'})
@@ -1135,7 +1146,6 @@ def expose():
     if not bank.is_owner():
         abort(403)
     return jsonify({'msg': 'access allowed'})
-    
 
 
 if __name__ == "__main__":
