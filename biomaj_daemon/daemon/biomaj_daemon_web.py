@@ -1127,7 +1127,13 @@ def expose():
     requested_bank = elts[2]
     user = None
     options = Options({})
-    bank = Bank(requested_bank, options=Options({}), no_log=True)
+    bank = None
+    try:
+        # if bank is not defined and requesting a local/temp dir
+        bank = Bank(requested_bank, options=Options({}), no_log=True)
+    except Exception:
+        abort(404)
+
     if bank.bank['properties']['visibility'] == 'public':
         return jsonify({'msg': 'access allowed'})
 

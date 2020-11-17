@@ -1,3 +1,6 @@
+3.0.23 [UNRELEASED]:
+  Expose endpoint, return 404 if bank does not exists
+
 3.0.22:
   Add /api/daemon/expose endpoint for traefik auth requests 
     to allow/deny access to /db web access
