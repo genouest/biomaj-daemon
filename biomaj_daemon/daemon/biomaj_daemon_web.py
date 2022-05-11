@@ -1,6 +1,10 @@
 import ssl
 import os
 import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 import logging
 from collections import deque
 import copy
@@ -41,7 +45,7 @@ if 'BIOMAJ_CONFIG' in os.environ:
 
 config = None
 with open(config_file, 'r') as ymlfile:
-    config = yaml.load(ymlfile)
+    config = yaml.load(ymlfile, Loader=Loader)
     Utils.service_config_override(config)
 
 BiomajConfig.load_config(config['biomaj']['config'])
