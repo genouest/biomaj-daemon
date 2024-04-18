@@ -14,6 +14,10 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+
 config = {
     'description': 'BioMAJ daemon service',
     'long_description': README + '\n\n' + CHANGES,
@@ -41,19 +45,7 @@ config = {
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
     ],
-    'install_requires': [
-                         'biomaj-core',
-                         'biomaj',
-                         'biomaj-user',
-                         'biomaj-zipkin',
-                         'redis',
-                         'PyYAML',
-                         'flask',
-                         'python-consul',
-                         'prometheus_client>=0.0.18',
-                         'requests',
-                         'flask-cors'
-                        ],
+    'install_requires': requirements,
     'tests_require': ['nose', 'mock'],
     'test_suite': 'nose.collector',
     'packages': find_packages(),
