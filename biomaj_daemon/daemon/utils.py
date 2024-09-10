@@ -266,6 +266,7 @@ def biomaj_show(options, config):
         return (False, "Bank option is required")
 
     bank = Bank(options.bank, options=options, no_log=True)
+    msg = ''
     results = []
     headers = ["Name", "Release", "Format(s)", "Type(s)", "Tag(s)", "File(s)"]
     if not options.json:
@@ -315,6 +316,8 @@ def biomaj_show(options, config):
                     ','.join(atags),
                     ','.join(afiles)])
                 msg = tabulate(results, headers="firstrow", tablefmt="grid")
+    if not msg:
+        return (False, "No production release found for the selected bank")
     return (True, msg)
 
 
